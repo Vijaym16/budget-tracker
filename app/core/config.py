@@ -1,4 +1,5 @@
 from pydantic import BaseSettings
+from passlib.context import CryptContext
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Budget Tracker API"
@@ -10,3 +11,8 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
