@@ -6,6 +6,11 @@ from app.db.session import SessionLocal
 from app.db.models import User
 from app.core.security import hash_password, verify_password
 
+from datetime import timedelta
+from app.core.jwt import create_access_token
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 def get_db():
@@ -49,7 +54,12 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password"
         )
 
+    access_token = create_access_token(
+        data={"sub": str(user.id)},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+
     return {
-        "message": "Login successful",
-        "user_id": user.id
+        "access_token": access_token,
+        "token_type": "bearer"
     }
